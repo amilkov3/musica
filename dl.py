@@ -4,11 +4,12 @@ import os
 from youtubesearchpython import SearchVideos
 import argparse
 import editdistance
+import subprocess
 
 def main(spotify_bearer, pid, out_dir, offset):
     out_dir = out_dir.rstrip('/')
-    if not os.path.exists(f'{out_dir}'):
-        os.makedirs(f'{out_dir}')
+    if not os.path.exists(out_dir):
+        os.makedirs(out_dir)
     with open(f'{out_dir}/songs', 'a+') as f:
         f.seek(0, 0)
         m = set({})
@@ -52,57 +53,60 @@ def main(spotify_bearer, pid, out_dir, offset):
                 except Exception as e:
                    print(f'caught exception: {e}')
             j += 1
+    p = subprocess.Popen(['m3ugen'], cwd=out_dir)
+    p.wait()
 
-def clean(out_dir):
-    files = os.listdir(out_dir)
-    for filename1 in files:
-        filename11 = filename1
-        if len(filename1) > 16 and filename1[-16] == '-':
-            filename11 = filename1[:-16]
-        else:
-            filename11 = filename1[:-4]
-        s1 = filename11.split('-')
-        if len(s1) < 2 or len(s1[1]) == 0:
-            continue
-        songname1 = s1[1]
-        #s1 = filename1.split('-')[-1].split('.')[0]
-        #if len(s1) < 2:
-        #    continue
-        #except Exception as e:
-        for filename2 in files:
-            if filename1 == filename2:
-                continue
-            #s2 = filename2.split('-')
-            #if len(s2) < 2:
-            #    continue
-            filename21 = filename2
-            if len(filename2) > 16 and filename2[-16] == '-':
-                filename21 = filename2[:-16]
-            else:
-                filename21 = filename2[:-4]
-            s2 = filename21.split('-')
-            if len(s2) < 2 or len(s2[1]) == 0:
-                continue
-            songname2 = s2[1]
-            #s2 = filename2.split('-')[-1].split('.')[0]
-            v = editdistance.eval(songname1, songname2)
-            #print(s1[1][:6], s2[1][:6])
-            #s1[1][:6] == s1[1][:6]
-            #songname1[:5] == songname2[:5] and
-
-            if abs(len(songname1) - len(songname2)) < 5 and v/len(songname1) < .2:
-                print(f'Match {songname1}  {songname2}')
-                try:
-                    os.remove(f'{out_dir}/{filename2}')
-                except Exception as e:
-                    pass
+# TODO: finish
+#def clean(out_dir):
+#    files = os.listdir(out_dir)
+#    for filename1 in files:
+#        filename11 = filename1
+#        if len(filename1) > 16 and filename1[-16] == '-':
+#            filename11 = filename1[:-16]
+#        else:
+#            filename11 = filename1[:-4]
+#        s1 = filename11.split('-')
+#        if len(s1) < 2 or len(s1[1]) == 0:
+#            continue
+#        songname1 = s1[1]
+#        #s1 = filename1.split('-')[-1].split('.')[0]
+#        #if len(s1) < 2:
+#        #    continue
+#        #except Exception as e:
+#        for filename2 in files:
+#            if filename1 == filename2:
+#                continue
+#            #s2 = filename2.split('-')
+#            #if len(s2) < 2:
+#            #    continue
+#            filename21 = filename2
+#            if len(filename2) > 16 and filename2[-16] == '-':
+#                filename21 = filename2[:-16]
+#            else:
+#                filename21 = filename2[:-4]
+#            s2 = filename21.split('-')
+#            if len(s2) < 2 or len(s2[1]) == 0:
+#                continue
+#            songname2 = s2[1]
+#            #s2 = filename2.split('-')[-1].split('.')[0]
+#            v = editdistance.eval(songname1, songname2)
+#            #print(s1[1][:6], s2[1][:6])
+#            #s1[1][:6] == s1[1][:6]
+#            #songname1[:5] == songname2[:5] and
+#
+#            if abs(len(songname1) - len(songname2)) < 5 and v/len(songname1) < .2:
+#                print(f'Match {songname1}  {songname2}')
+#                try:
+#                    os.remove(f'{out_dir}/{filename2}')
+#                except Exception as e:
+#                    pass
 
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Download some music')
     parser.add_argument('down', nargs='?')
-    parser.add_argument('clean', nargs='?')
+    #parser.add_argument('clean', nargs='?')
     parser.add_argument('-bearer', type=str)
     parser.add_argument('-pid', type=str)
     parser.add_argument('-dir', type=str)
@@ -110,10 +114,14 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    print(args.down, args.bearer, args.pid, args.dir)
+    print(f'Running with args: bearer: {args.bearer}, pid: {args.pid}, dir: {args.dir}')
+
+    commands = {'youtube-dlc': "make sure you've added python user bins to your PATH", 'm3ugen': "make sure you've installed m3u-generator"}
+    for c, r in commands.items():
+        if os.system(f'command -v {c} &> /dev/null') != 0:
+            raise Exception(f'command {c} not found: {r}')
 
     if args.down and args.bearer and args.pid and args.dir:
-        print('foo')
         main(args.bearer, args.pid, args.dir, args.offset)
-    elif args.clean and args.dir:
-        clean(args.dir)
+    #elif args.clean and args.dir:
+    #    clean(args.dir)
