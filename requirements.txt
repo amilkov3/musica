@@ -1,0 +1,3 @@
+youtube-dlc
+editdistance
+youtube-search-python
