@@ -5,6 +5,7 @@ from youtubesearchpython import SearchVideos
 import argparse
 import editdistance
 import subprocess
+import re
 
 def main(spotify_bearer, pid, out_dir, offset):
     out_dir = out_dir.rstrip('/')
@@ -17,12 +18,11 @@ def main(spotify_bearer, pid, out_dir, offset):
             m.add(line.rstrip())
         headers1 = {'Authorization': f'Bearer {spotify_bearer}', 'Content-type': 'application/json'}
         cont = True
-        j = 0
+        offset1 = 0
+        if offset:
+            offset1 = offset
         while cont:
             s = http.client.HTTPSConnection("api.spotify.com")
-            offset1 = j * 100
-            if offset:
-                offset1 = offset
             path = f'/v1/playlists/{pid}/tracks?market=ES&offset={offset1}'
             s.request("GET", path , headers=headers1)
             r1 = s.getresponse()
@@ -48,11 +48,12 @@ def main(spotify_bearer, pid, out_dir, offset):
                         continue
                     id1 = x["search_result"][0]["id"]
                     res = os.system(f'youtube-dlc -o \"{out_dir}/%(title)s.%(ext)s\" https://www.youtube.com/watch?v={id1}')
-                    if res == 0:
+                    if res == 0 :
+                        m.add(search)
                         f.write(f'{search}\n')
                 except Exception as e:
                    print(f'caught exception: {e}')
-            j += 1
+            offset1 += 100
     p = subprocess.Popen(['m3ugen'], cwd=out_dir)
     p.wait()
 
@@ -116,12 +117,26 @@ if __name__ == '__main__':
 
     print(f'Running with args: bearer: {args.bearer}, pid: {args.pid}, dir: {args.dir}')
 
-    commands = {'youtube-dlc': "make sure you've added python user bins to your PATH", 'm3ugen': "make sure you've installed m3u-generator"}
+    b = subprocess.check_output(['python3', '--version']).decode("utf-8")
+    p = re.compile("Python 3\.([1-9]{1})\.[1-9]{1}")
+    match = p.match(b)
+    if not match:
+        raise Exception("")
+    if len(match.groups()) != 1:
+        raise Exception("bar")
+    v = f'3.{match.groups()[0]}'
+    print(f'Python major/minor version: {v}')
+    os.system(f'export PATH="~/Library/Python/{v}/bin:$PATH"')
+
+    commands = {'youtube-dlc': "youtube-dlc not found in path", 'm3ugen': "make sure you've installed m3u-generator"}
     for c, r in commands.items():
         if os.system(f'command -v {c} &> /dev/null') != 0:
             raise Exception(f'command {c} not found: {r}')
 
     if args.down and args.bearer and args.pid and args.dir:
-        main(args.bearer, args.pid, args.dir, args.offset)
+        if len(str(args.offset)) != 3:
+            raise Exception("offset must be multiple of 100")
+        offset = int(str(args.offset)[0]) * 100
+        main(args.bearer, args.pid, args.dir, offset)
     #elif args.clean and args.dir:
     #    clean(args.dir)

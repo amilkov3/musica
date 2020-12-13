@@ -3,21 +3,21 @@
 ```
 # install brew
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
-# install python 3 and pip
+# install python 3 and pip 3
 brew install python
 # install dependencies
-pip install --user -r requirements.txt
+pip3 install --user -r requirements.txt
 # install npm
 brew install node
 # install m3ugen https://github.com/sidlauskaslukas/m3u-generator
 npm install -g m3u-generator
+
+# to keep up to date you'll want to run
+pip3 install --upgrade -r requirements.txt
+# every so often
 ```
 
 ## Use
-Add user python bins to path
-
-MacOS: `export PATH="~/Library/Python/3.8/bin:$PATH"`
-
 `python3 dl.py down -bearer <bearer-token> -pid <playlist-id> -dir <path-to-dir> -offset <offset>`
 
 * `-bearer` - Go to Spotify's <a href="https://developer.spotify.com/console/get-playlist-tracks/?playlist_id=&market=&fields=&limit=&offset=&additional_types=" target="_blank">playground console</a> and click `Get Token`  to generate a bearer token
