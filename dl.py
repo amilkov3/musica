@@ -47,7 +47,7 @@ def main(spotify_bearer, pid, out_dir, offset):
                         print(f'no search results for {search}')
                         continue
                     id1 = x["search_result"][0]["id"]
-                    res = os.system(f'youtube-dlc -o \"{out_dir}/%(title)s.%(ext)s\" https://www.youtube.com/watch?v={id1}')
+                    res = os.system(f'youtube-dlc -o \"{out_dir}/%(title)s.%(ext)s\" https://www.youtube.com/watch?v={id1} -x --audio-format \"mp3\"')
                     if res == 0 :
                         m.add(search)
                         f.write(f'{search}\n')
@@ -121,9 +121,9 @@ if __name__ == '__main__':
     p = re.compile("Python 3\.([1-9]{1})\.[1-9]{1}")
     match = p.match(b)
     if not match:
-        raise Exception("")
+        raise Exception(f'invalid python version: {b}')
     if len(match.groups()) != 1:
-        raise Exception("bar")
+        raise Exception("invalid match")
     v = f'3.{match.groups()[0]}'
     print(f'Python major/minor version: {v}')
     os.system(f'export PATH="~/Library/Python/{v}/bin:$PATH"')

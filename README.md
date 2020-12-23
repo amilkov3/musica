@@ -5,6 +5,8 @@
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
 # install python 3 and pip 3
 brew install python
+# to convert Youtube mp4 to mp3 because Rekordbox can't export mp4s
+brew install ffmpeg
 # install dependencies
 pip3 install --user -r requirements.txt
 # install npm
