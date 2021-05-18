@@ -134,9 +134,11 @@ if __name__ == '__main__':
             raise Exception(f'command {c} not found: {r}')
 
     if args.down and args.bearer and args.pid and args.dir:
-        if len(str(args.offset)) != 3:
-            raise Exception("offset must be multiple of 100")
-        offset = int(str(args.offset)[0]) * 100
+        offset = 0
+        if args.offset:
+            if len(str(args.offset)) != 3:
+                raise Exception("offset must be multiple of 100")
+            offset = int(str(args.offset)[0]) * 100
         main(args.bearer, args.pid, args.dir, offset)
     #elif args.clean and args.dir:
     #    clean(args.dir)
