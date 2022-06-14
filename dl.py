@@ -6,8 +6,9 @@ import argparse
 import editdistance
 import subprocess
 import re
+import sys
 
-def main(spotify_bearer, pid, out_dir, offset):
+def main(spotify_bearer, pid, out_dir, offset, use_min_dist):
     out_dir = out_dir.rstrip('/')
     if not os.path.exists(out_dir):
         os.makedirs(out_dir)
@@ -46,7 +47,19 @@ def main(spotify_bearer, pid, out_dir, offset):
                     if len(x["search_result"]) == 0:
                         print(f'no search results for {search}')
                         continue
-                    id1 = x["search_result"][0]["id"]
+                    res_i = 0
+                    if use_min_dist:
+                        num_res = 10
+                        min_dist = sys.maxsize
+                        title = x["search_result"][0]["title"]
+                        for i, res in enumerate(x["search_result"][:num_res]):
+                            dist = editdistance.eval(search, res["title"])
+                            if dist < min_dist:
+                                min_dist = dist
+                                res_i = i
+                                title = res["title"]
+                        print(f'min dist title of first {num_res} results: {title} idx {min_i}')
+                    id1 = x["search_result"][res_i]["id"]
                     res = os.system(f'youtube-dlc -o \"{out_dir}/%(title)s.%(ext)s\" https://www.youtube.com/watch?v={id1} -x --audio-format \"mp3\"')
                     if res == 0 :
                         m.add(search)
@@ -112,10 +125,11 @@ if __name__ == '__main__':
     parser.add_argument('-pid', type=str)
     parser.add_argument('-dir', type=str)
     parser.add_argument('-offset', type=int)
+    parser.add_argument('-min_dist', default=False, action='store_true')
 
     args = parser.parse_args()
 
-    print(f'Running with args: bearer: {args.bearer}, pid: {args.pid}, dir: {args.dir}')
+    print(f'Running with args: bearer: {args.bearer}, pid: {args.pid}, dir: {args.dir}, min_dist: {args.min_dist}')
 
     b = subprocess.check_output(['python3', '--version']).decode("utf-8")
     p = re.compile("Python 3\.([1-9]{1})\.[1-9]{1}")
@@ -139,6 +153,6 @@ if __name__ == '__main__':
             if len(str(args.offset)) != 3:
                 raise Exception("offset must be multiple of 100")
             offset = int(str(args.offset)[0]) * 100
-        main(args.bearer, args.pid, args.dir, offset)
+        main(args.bearer, args.pid, args.dir, offset, args.min_dist)
     #elif args.clean and args.dir:
     #    clean(args.dir)

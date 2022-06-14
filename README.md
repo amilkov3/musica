@@ -26,5 +26,6 @@ pip3 install --upgrade -r requirements.txt
 * `-pid` -  The id will be: `https://open.spotify.com/playlist/<id>?si=<ignore>` in the playlist link
 * `-dir` - Path to directory playlist will be downloaded in ex: `~/house`
 * `-offset` - Song # in the playlist after which all songs will be downloaded. Must be a multiple of 100 i.e. 100, 200, etc
+* `-min_dist` - default: false. Instead of always downloading the first hint, use edit distance between the title of the first 10 results and the artist and track name to find the smallest one and download that instead
 
 The `.m3u` playlist file to import into rekordbox will be in the `-dir` above
