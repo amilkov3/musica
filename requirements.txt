@@ -1,3 +1,4 @@
 youtube-dlc
 editdistance
 youtube-search-python
+yt-dlp

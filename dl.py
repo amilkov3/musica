@@ -7,24 +7,27 @@ import editdistance
 import subprocess
 import re
 import sys
+#from mypy import tuple;
+
+def read_cache(f):
+    f.seek(0, 0)
+    m = set({})
+    for line in f.readlines():
+        m.add(line.rstrip())
+    return m
 
 def main(spotify_bearer, pid, out_dir, offset, use_min_dist):
     out_dir = out_dir.rstrip('/')
     if not os.path.exists(out_dir):
         os.makedirs(out_dir)
     with open(f'{out_dir}/songs', 'a+') as f:
-        f.seek(0, 0)
-        m = set({})
-        for line in f.readlines():
-            m.add(line.rstrip())
+        m = read_cache(f)
         headers1 = {'Authorization': f'Bearer {spotify_bearer}', 'Content-type': 'application/json'}
         cont = True
-        offset1 = 0
-        if offset:
-            offset1 = offset
+        offset = offset if offset else 0
         while cont:
             s = http.client.HTTPSConnection("api.spotify.com")
-            path = f'/v1/playlists/{pid}/tracks?market=ES&offset={offset1}'
+            path = f'/v1/playlists/{pid}/tracks?market=ES&offset={offset}'
             s.request("GET", path , headers=headers1)
             r1 = s.getresponse()
             code = r1.getcode()
@@ -66,7 +69,8 @@ def main(spotify_bearer, pid, out_dir, offset, use_min_dist):
                         f.write(f'{search}\n')
                 except Exception as e:
                    print(f'caught exception: {e}')
-            offset1 += 100
+            offset += 100
+    #f.close()
     p = subprocess.Popen(['m3ugen'], cwd=out_dir)
     p.wait()
 

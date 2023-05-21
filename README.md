@@ -1,3 +1,10 @@
+## asyncdl.py
+
+async download via `yt-dlp`. reel fast
+
+## (outdated) dl.py
+
+sync download via `youtube-dlc`. very slow
 
 ## Setup
 ```
@@ -20,9 +27,9 @@ pip3 install --upgrade -r requirements.txt
 ```
 
 ## Use
-`python3 dl.py down -bearer <bearer-token> -pid <playlist-id> -dir <path-to-dir> -offset <offset>`
+`python3 asyncdl.py down -bearer <bearer-token> -pid <playlist-id> -dir <path-to-dir> -offset <offset>`
 
-* `-bearer` - Go to Spotify's <a href="https://developer.spotify.com/console/get-playlist-tracks/?playlist_id=&market=&fields=&limit=&offset=&additional_types=" target="_blank">playground console</a> and click `Get Token`  to generate a bearer token
+* `-bearer` - Go to Spotify's <a href="https://developer.spotify.com/console/get-playlist-tracks/?playlist_id=&market=&fields=&limit=&offset=&additional_types=" target="_blank">playground console</a> and put your `playlist_id` in, click Try It, and find the `tracks` request in the Chrome Console and extract the `Bearer Token` header from it
 * `-pid` -  The id will be: `https://open.spotify.com/playlist/<id>?si=<ignore>` in the playlist link
 * `-dir` - Path to directory playlist will be downloaded in ex: `~/house`
 * `-offset` - Song # in the playlist after which all songs will be downloaded. Must be a multiple of 100 i.e. 100, 200, etc
